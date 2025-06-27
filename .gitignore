@@ -1,0 +1,22 @@
+# 忽略所有 .env 檔案，這是最重要的安全措施！
+.env*
+
+# 忽略 Python 的快取和編譯檔案
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略虛擬環境資料夾 (如果有的話)
+venv/
+env/
+.venv/
+prev/
+
+# 忽略 IDE 和作業系統產生的設定檔
+.idea/
+.vscode/
+*.DS_Store
+
+# ✨ 忽略 Lala 的長期記憶檔案 (非常重要，涉及使用者隱私)
+*.pkl
