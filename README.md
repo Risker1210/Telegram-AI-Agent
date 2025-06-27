@@ -1,0 +1,36 @@
+# 🤖 一個具備多模態與工具使用能力的 AI 助理
+
+這是一個在 Telegram 上運行的 AI 助理專案，由本地部署的 Ollama 大型語言模型驅動。Lala 不僅能進行有溫度、有記憶的對話，還能理解圖片和貼圖，並透過函式呼叫來使用外部工具（天氣、搜尋、新聞等）。
+
+## ✨ 功能特色
+
+- [x] **多模態對話**: 支援文字、照片和貼圖的互動。
+- [x] **可插拔工具箱**: 透過函式呼叫 (Function Calling) 使用多種工具：
+  - [x] 網路搜尋
+  - [x] 即時天氣查詢
+  - [x] 最新頭條新聞
+  - [ ] 待辦事項管理
+  - [ ] 音樂推薦
+  - [ ] ... 以及更多可擴充的工具！
+- [x] **可自訂 Persona**: 透過 `.env` 檔案輕鬆定義 AI 的個性和說話風格。
+- [x] **模型切換**: 支援動態切換不同的 Ollama 模型。
+- [ ] **長期記憶**: (下一步) 透過 Persistence 實現跨重啟的對話記憶。
+- [ ] **即時串流回應**: (下一步) 讓 AI 的回覆像真人打字一樣即時呈現。
+
+## 🚀 如何開始
+
+### 1. 前置需求
+
+- Python 3.10+
+- Ollama 已安裝並運行您需要的模型 (例如 `qwen2:7b`, `llava`)
+- Git
+
+### 2. 安裝
+
+```bash
+# 複製專案
+git clone [https://github.com/YourUsername/Lala-Telegram-AI-Agent.git](https://github.com/YourUsername/Lala-Telegram-AI-Agent.git)
+cd Lala-Telegram-AI-Agent
+
+# 安裝所需的 Python 函式庫
+pip install -r requirements.txt
