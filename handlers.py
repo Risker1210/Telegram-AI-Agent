@@ -146,7 +146,7 @@ async def photo_or_sticker_handler(update: Update, ctx: ContextTypes.DEFAULT_TYP
         user_msg_for_hist = "(傳送了一張貼圖)" if is_sticker else "(傳送了一張照片)"
         
         msgs = [{"role": "system", "content": persona}] + list(hist) + [{"role": "user", "content": prompt}]
-        reply = await ask_ollama(ctx, msgs, image_b64=image_b64)
+        reply = await ask_ollama_once(ctx, msgs, image_b64=image_b64)
         cleaned_reply = re.sub(r'<think>.*?</think>\s*', '', reply, flags=re.DOTALL).strip()
         
         hist.append({"role": "user", "content": user_msg_for_hist})

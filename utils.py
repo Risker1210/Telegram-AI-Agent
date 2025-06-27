@@ -63,13 +63,15 @@ async def ask_ollama_stream(ctx: ContextTypes.DEFAULT_TYPE, msgs: list, image_b6
         yield f"⚠️ 發生未知錯誤"
 
 # ✨ V6 新增：一個非串流的版本，供內部工具判斷使用
-async def ask_ollama_once(ctx: ContextTypes.DEFAULT_TYPE, msgs: list):
+async def ask_ollama_once(
+    ctx: ContextTypes.DEFAULT_TYPE, msgs: list, image_b64: str | None = None
+) -> str:
     """
     向 Ollama API 發送一次性請求，獲取完整回應。
     主要用於需要完整 JSON 的函式呼叫判斷。
     """
     full_response = ""
-    async for chunk in ask_ollama_stream(ctx, msgs):
+    async for chunk in ask_ollama_stream(ctx, msgs, image_b64=image_b64):
         full_response += chunk
     return full_response
 
