@@ -23,7 +23,7 @@ async def ask_ollama_stream(ctx: ContextTypes.DEFAULT_TYPE, msgs: list, image_b6
     向 Ollama API 發送請求並以串流方式獲取回應。
     這是一個非同步產生器，會逐一產出 (yield) 收到的文字片段。
     """
-    session: aiohttp.ClientSession = ctx.bot_data["aiohttp_session"]
+    session: aiohttp.ClientSession = ctx.application.aiohttp_session
     
     if image_b64:
         model_to_use = OLLAMA_VISION_MODEL

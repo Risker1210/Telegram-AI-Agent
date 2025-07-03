@@ -26,10 +26,10 @@ class Tools:
         return datetime.now(tz).strftime("%Y年%m月%d日 %A %H:%M")
 
     @staticmethod
-    async def get_current_weather(session: aiohttp.ClientSession, city: str):
+    async def get_current_weather(ctx: ContextTypes.DEFAULT_TYPE, city: str):
         # ✨ 在查詢前，先嘗試轉換成英文名
         city_en = Tools.CITY_MAP.get(city, city) # 如果在字典裡，就用英文名；否則用原文
-        
+        session: aiohttp.ClientSession = ctx.application.aiohttp_session
         if not WEATHER_API_KEY: return "（天氣功能未設定 API Key）"
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city_en}&appid={WEATHER_API_KEY}&units=metric&lang=zh_tw"
         try:
@@ -38,7 +38,7 @@ class Tools:
                 if r.status == 200: 
                     description = data['weather'][0]['description']
                     temp = data['main']['temp']
-                    return f"{city}的天氣是「{description}」，氣溫 {temp}°C。" # 回覆時仍然使用使用者說的中文名
+                    return f"地點：{city}, 天氣：{description}, 氣溫：{temp}°C"
                 else: 
                     error_message = data.get('message', '未知錯誤')
                     logging.error(f"天氣 API 錯誤 ({r.status}) for city '{city_en}': {error_message}")
@@ -57,30 +57,48 @@ class Tools:
         except Exception as e: logging.error(f"網路搜尋失敗: {e}"); return "抱歉，搜尋時發生錯誤。"
 
     @staticmethod
-    def get_news_headlines(query: str = None, category: str = None):
+    def get_news_headlines(ctx: ContextTypes.DEFAULT_TYPE, query: str):
+        """根據指定的關鍵字，獲取新聞文章列表並進行去重。"""
         if not NEWS_API_KEY: return "抱歉，新聞功能未設定 API Key。"
         try:
             newsapi = NewsApiClient(api_key=NEWS_API_KEY)
-            if query: headlines = newsapi.get_everything(q=query, language='zh', sort_by='relevancy', page_size=3)
-            else: headlines = newsapi.get_top_headlines(category=category, language='zh', country='tw', page_size=3)
+            # ✨ 總是用 get_everything，query 由模型決定
+            headlines = newsapi.get_everything(q=query, language='zh', sort_by='relevancy', page_size=10)
+            
             articles = headlines.get('articles', [])
-            if not articles: return "找不到相關新聞。"
-            formatted = [f"標題: {a['title']}\n摘要: {a.get('description', '')}\n---" for a in articles]
-            return "\n".join(formatted)
-        except Exception as e: logging.error(f"獲取新聞失敗: {e}"); return "抱歉，查詢新聞時發生錯誤。"
+            if not articles: return f"找不到關於「{query}」的新聞。"
+            
+            # (新聞去重邏輯不變)
+            seen_urls = ctx.user_data.setdefault("seen_news_urls", set())
+            new_articles = []
+            for article in articles:
+                url = article.get("url")
+                if url and url not in seen_urls:
+                    new_articles.append(article)
+                    seen_urls.add(url)
+            
+            if not new_articles: return "抱歉，目前沒有更多關於這個主題的新聞了耶～"
+            
+            # ✨ 回傳精簡後的文章物件，只包含摘要所需內容
+            return [{"title": a.get("title"), "description": a.get("description"), "url": a.get("url")} for a in new_articles]
+        except Exception as e:
+            logging.error(f"獲取新聞失敗: {e}")
+            return f"抱歉，查詢新聞時發生錯誤: {e}"
 
+
+        
     @staticmethod
     def add_todo(ctx: ContextTypes.DEFAULT_TYPE, item: str):
         todos = ctx.user_data.setdefault("todos", [])
         todos.append(item)
-        return f"好的，已經幫你記下待辦事項：『{item}』"
+        return f"成功新增待辦事項：{item}"
 
     @staticmethod
     def list_todos(ctx: ContextTypes.DEFAULT_TYPE):
         todos = ctx.user_data.get("todos", [])
-        if not todos: return "你的待辦清單現在是空的喔！"
+        if not todos: return "待辦清單是空的"
         items = [f"{i}. {item}" for i, item in enumerate(todos, 1)]
-        return "這是你目前的待辦清單：\n" + "\n".join(items)
+        return f"目前的待辦事項有：{', '.join(todos)}"
 
     @staticmethod
     def recommend_music(mood: str):

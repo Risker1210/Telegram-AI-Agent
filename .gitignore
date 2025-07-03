@@ -12,6 +12,7 @@ venv/
 env/
 .venv/
 prev/
+data/
 
 # 忽略 IDE 和作業系統產生的設定檔
 .idea/
